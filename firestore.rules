@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTicket(data) {
+      return data.title is string && data.title.size() > 0 && data.title.size() <= 200 &&
+             data.status in ['open', 'in-progress', 'resolved', 'closed'] &&
+             data.priority in ['low', 'medium', 'high', 'urgent'] &&
+             data.vendorId is string && data.vendorId.size() <= 64 &&
+             data.vendorName is string && data.vendorName.size() <= 200 &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidVendor(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200;
+    }
+
+    match /tickets/{ticketId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(ticketId) && isValidTicket(incoming());
+      allow update: if isSignedIn() && isValidId(ticketId) && isValidTicket(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['status', 'priority', 'description', 'updatedAt'])
+      );
+    }
+
+    match /vendors/{vendorId} {
+      allow read, list: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(vendorId) && isValidVendor(incoming());
+      allow update: if isSignedIn() && isValidId(vendorId) && isValidVendor(incoming());
+    }
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Ticket": {
+      "title": "Ticket",
+      "description": "A service ticket for a vendor",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Short summary of the issue" },
+        "description": { "type": "string", "description": "Detailed description of the problem" },
+        "status": { "type": "string", "enum": ["open", "in-progress", "resolved", "closed"] },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "vendorId": { "type": "string", "description": "Reference to the vendor" },
+        "vendorName": { "type": "string", "description": "Denormalized vendor name for easier display" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdBy": { "type": "string", "description": "User email or UID" }
+      },
+      "required": ["title", "status", "priority", "vendorId", "createdAt"]
+    },
+    "Vendor": {
+      "title": "Vendor",
+      "description": "A third-party service provider",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "category": { "type": "string" }
+      },
+      "required": ["name"]
+    }
+  },
+  "firestore": {
+    "/tickets/{ticketId}": {
+      "schema": "Ticket",
+      "description": "Collection of all vendor tickets"
+    },
+    "/vendors/{vendorId}": {
+      "schema": "Vendor",
+      "description": "Collection of registered vendors"
+    }
+  }
+}

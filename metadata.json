@@ -1,0 +1,6 @@
+{
+  "name": "Vendor Ticket Tracker",
+  "description": "A professional tool for tracking vendor service tickets with Gmail OAuth sync, automated status extraction, and Excel reporting.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
